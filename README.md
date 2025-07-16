@@ -1,78 +1,217 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19946114&assignment_repo_type=AssignmentRepo)
-# Real-Time Chat Application with Socket.io
+# MERN Stack Blog Application
 
-This assignment focuses on building a real-time chat application using Socket.io, implementing bidirectional communication between clients and server.
+A full-stack blog application built with MongoDB, Express.js, React.js, and Node.js (MERN stack) featuring user authentication, CRUD operations, image uploads, search functionality, and more.
 
-## Assignment Overview
+## 🚀 Features
 
-You will build a chat application with the following features:
-1. Real-time messaging using Socket.io
-2. User authentication and presence
-3. Multiple chat rooms or private messaging
-4. Real-time notifications
-5. Advanced features like typing indicators and read receipts
+- **User Authentication**: Registration, login, and protected routes
+- **Blog Management**: Create, read, update, and delete blog posts
+- **Categories**: Organize posts by categories
+- **Comments**: Add comments to blog posts
+- **Image Uploads**: Upload featured images for posts
+- **Search & Filter**: Search posts by title, content, or tags
+- **Pagination**: Navigate through posts with pagination
+- **Responsive Design**: Works on all device sizes
+- **Real-time Updates**: Optimistic UI updates
 
-## Project Structure
+## 🛠️ Tech Stack
+
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web framework
+- **MongoDB** - Database
+- **Mongoose** - ODM (Object Document Mapper)
+- **JWT** - Authentication tokens
+- **Multer** - File upload handling
+- **Express Validator** - Input validation
+- **Helmet** - Security headers
+- **CORS** - Cross-origin resource sharing
+
+### Frontend
+- **React.js** - UI library
+- **Vite** - Build tool
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **Tailwind CSS** - Styling
+- **React Hot Toast** - Notifications
+
+## 📁 Project Structure
 
 ```
-socketio-chat/
-├── client/                 # React front-end
-│   ├── public/             # Static files
-│   ├── src/                # React source code
-│   │   ├── components/     # UI components
-│   │   ├── context/        # React context providers
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Page components
-│   │   ├── socket/         # Socket.io client setup
-│   │   └── App.jsx         # Main application component
-│   └── package.json        # Client dependencies
-├── server/                 # Node.js back-end
-│   ├── config/             # Configuration files
-│   ├── controllers/        # Socket event handlers
-│   ├── models/             # Data models
-│   ├── socket/             # Socket.io server setup
-│   ├── utils/              # Utility functions
-│   ├── server.js           # Main server file
-│   └── package.json        # Server dependencies
-└── README.md               # Project documentation
+mern-blog/
+├── server/                 # Backend application
+│   ├── config/            # Database configuration
+│   ├── middleware/        # Custom middleware
+│   ├── models/           # Mongoose models
+│   ├── routes/           # API routes
+│   ├── uploads/          # Uploaded images
+│   ├── server.js         # Main server file
+│   └── .env              # Environment variables
+├── client/               # Frontend application
+│   ├── src/
+│   │   ├── components/   # Reusable components
+│   │   ├── context/      # React context
+│   │   ├── pages/        # Page components
+│   │   ├── services/     # API services
+│   │   └── App.jsx       # Main app component
+│   ├── index.html        # HTML template
+│   └── vite.config.js    # Vite configuration
+└── README.md
 ```
 
-## Getting Started
+## � Getting Started
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Follow the setup instructions in the `Week5-Assignment.md` file
-4. Complete the tasks outlined in the assignment
-
-## Files Included
-
-- `Week5-Assignment.md`: Detailed assignment instructions
-- Starter code for both client and server:
-  - Basic project structure
-  - Socket.io configuration templates
-  - Sample components for the chat interface
-
-## Requirements
+### Prerequisites
 
 - Node.js (v18 or higher)
+- MongoDB (local installation or MongoDB Atlas)
 - npm or yarn
-- Modern web browser
-- Basic understanding of React and Express
 
-## Submission
+### Installation
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd mern-blog
+   ```
 
-1. Complete both the client and server portions of the application
-2. Implement the core chat functionality
-3. Add at least 3 advanced features
-4. Document your setup process and features in the README.md
-5. Include screenshots or GIFs of your working application
-6. Optional: Deploy your application and add the URLs to your README.md
+2. **Install server dependencies**
+   ```bash
+   cd server
+   npm install
+   ```
 
-## Resources
+3. **Install client dependencies**
+   ```bash
+   cd ../client
+   npm install
+   ```
 
-- [Socket.io Documentation](https://socket.io/docs/v4/)
-- [React Documentation](https://react.dev/)
-- [Express.js Documentation](https://expressjs.com/)
-- [Building a Chat Application with Socket.io](https://socket.io/get-started/chat) 
+4. **Set up environment variables**
+
+   Create a `.env` file in the `server` directory:
+   ```env
+   PORT=5000
+   MONGODB_URI=mongodb://localhost:27017/mern-blog
+   JWT_SECRET=your-super-secret-jwt-key
+   NODE_ENV=development
+   ```
+
+5. **Start MongoDB**
+   - If using local MongoDB: Make sure MongoDB is running
+   - If using MongoDB Atlas: Update the `MONGODB_URI` in the `.env` file
+
+6. **Start the development servers**
+
+   **Terminal 1 - Backend:**
+   ```bash
+   cd server
+   npm run dev
+   ```
+
+   **Terminal 2 - Frontend:**
+   ```bash
+   cd client
+   npm run dev
+   ```
+
+7. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
+   - API Documentation: http://localhost:5000/api/health
+
+## 📡 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/logout` - Logout user
+
+### Posts
+- `GET /api/posts` - Get all posts (with pagination, search, filtering)
+- `GET /api/posts/:id` - Get single post
+- `POST /api/posts` - Create new post (protected)
+- `PUT /api/posts/:id` - Update post (protected)
+- `DELETE /api/posts/:id` - Delete post (protected)
+- `POST /api/posts/:id/comments` - Add comment to post (protected)
+
+### Categories
+- `GET /api/categories` - Get all categories
+- `GET /api/categories/:id` - Get single category
+- `POST /api/categories` - Create category (admin only)
+- `PUT /api/categories/:id` - Update category (admin only)
+- `DELETE /api/categories/:id` - Delete category (admin only)
+
+### Upload
+- `POST /api/upload` - Upload image (protected)
+- `DELETE /api/upload/:filename` - Delete uploaded image (protected)
+
+## 🔧 Environment Variables
+
+### Server (.env)
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/mern-blog
+JWT_SECRET=your-super-secret-jwt-key
+NODE_ENV=development
+```
+
+### Client (.env.local)
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+## 🎯 Usage
+
+1. **Register a new account** or **login** with existing credentials
+2. **Create a new post** by clicking "Create Post" in the navigation
+3. **Browse posts** on the home page with search and filtering
+4. **View individual posts** by clicking on them
+5. **Add comments** to posts
+6. **Edit or delete** your own posts
+7. **Upload images** for post featured images
+
+## 🧪 Testing
+
+### Backend Testing
+```bash
+cd server
+npm test
+```
+
+### Frontend Testing
+```bash
+cd client
+npm test
+```
+
+## 🚀 Deployment
+
+### Backend Deployment
+1. Set production environment variables
+2. Build and deploy to your preferred platform (Heroku, AWS, etc.)
+3. Ensure MongoDB connection is properly configured
+
+### Frontend Deployment
+1. Build the frontend: `npm run build`
+2. Deploy the `dist` folder to your preferred platform (Netlify, Vercel, etc.)
+3. Update the API URL in environment variables
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with modern web technologies
+- Inspired by the MERN stack community
+- Thanks to all contributors and open-source libraries

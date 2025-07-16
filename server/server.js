@@ -1,132 +1,103 @@
-// server.js - Main server file for Socket.io chat application
-
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
 const cors = require('cors');
-const dotenv = require('dotenv');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
+require('dotenv').config();
 
-// Load environment variables
-dotenv.config();
+const connectDB = require('./config/database');
+const errorHandler = require('./middleware/errorHandler');
 
-// Initialize Express app
+// Import socket handlers
+const { authenticateSocket, handleChatEvents } = require('./socket/chatHandler');
+const { handleUserEvents } = require('./socket/userHandler');
+const { handleNotificationEvents } = require('./socket/notificationHandler');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const postRoutes = require('./routes/posts');
+const categoryRoutes = require('./routes/categories');
+const uploadRoutes = require('./routes/upload');
+const messageRoutes = require('./routes/messages');
+
+// Initialize express app
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+const io = socketIo(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    methods: ["GET", "POST"]
+  }
 });
+
+// Connect to database
+connectDB();
 
 // Middleware
+app.use(helmet());
 app.use(cors());
+app.use(morgan('combined'));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
 
-// Store connected users and messages
-const users = {};
-const messages = [];
-const typingUsers = {};
+// Static files for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Socket.io connection handler
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/messages', messageRoutes);
+
+// Socket.io authentication middleware
+io.use(authenticateSocket);
+
+// Socket.io connection handling
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`);
+  console.log(`User connected: ${socket.user.username} (${socket.user._id})`);
+  
+  // Handle chat events
+  handleChatEvents(io, socket);
+  
+  // Handle user events
+  handleUserEvents(io, socket);
+  
+  // Handle notification events
+  handleNotificationEvents(io, socket);
 
-  // Handle user joining
-  socket.on('user_join', (username) => {
-    users[socket.id] = { username, id: socket.id };
-    io.emit('user_list', Object.values(users));
-    io.emit('user_joined', { username, id: socket.id });
-    console.log(`${username} joined the chat`);
-  });
-
-  // Handle chat messages
-  socket.on('send_message', (messageData) => {
-    const message = {
-      ...messageData,
-      id: Date.now(),
-      sender: users[socket.id]?.username || 'Anonymous',
-      senderId: socket.id,
-      timestamp: new Date().toISOString(),
-    };
-    
-    messages.push(message);
-    
-    // Limit stored messages to prevent memory issues
-    if (messages.length > 100) {
-      messages.shift();
-    }
-    
-    io.emit('receive_message', message);
-  });
-
-  // Handle typing indicator
-  socket.on('typing', (isTyping) => {
-    if (users[socket.id]) {
-      const username = users[socket.id].username;
-      
-      if (isTyping) {
-        typingUsers[socket.id] = username;
-      } else {
-        delete typingUsers[socket.id];
-      }
-      
-      io.emit('typing_users', Object.values(typingUsers));
-    }
-  });
-
-  // Handle private messages
-  socket.on('private_message', ({ to, message }) => {
-    const messageData = {
-      id: Date.now(),
-      sender: users[socket.id]?.username || 'Anonymous',
-      senderId: socket.id,
-      message,
-      timestamp: new Date().toISOString(),
-      isPrivate: true,
-    };
-    
-    socket.to(to).emit('private_message', messageData);
-    socket.emit('private_message', messageData);
-  });
-
-  // Handle disconnection
   socket.on('disconnect', () => {
-    if (users[socket.id]) {
-      const { username } = users[socket.id];
-      io.emit('user_left', { username, id: socket.id });
-      console.log(`${username} left the chat`);
-    }
-    
-    delete users[socket.id];
-    delete typingUsers[socket.id];
-    
-    io.emit('user_list', Object.values(users));
-    io.emit('typing_users', Object.values(typingUsers));
+    console.log(`User disconnected: ${socket.user.username} (${socket.user._id})`);
   });
 });
 
-// API routes
-app.get('/api/messages', (req, res) => {
-  res.json(messages);
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    socket: true
+  });
 });
 
-app.get('/api/users', (req, res) => {
-  res.json(Object.values(users));
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
 });
 
-// Root route
-app.get('/', (req, res) => {
-  res.send('Socket.io Chat Server is running');
-});
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
-// Start server
 const PORT = process.env.PORT || 5000;
+
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Socket.io server ready`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
 });
-
-module.exports = { app, server, io }; 
