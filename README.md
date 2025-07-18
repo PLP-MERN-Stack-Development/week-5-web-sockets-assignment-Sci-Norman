@@ -1,4 +1,4 @@
-live URL : https://task-manager-lxeq.vercel.app/
+
 
 # MERN Stack Blog Application
 
