@@ -1,3 +1,5 @@
+live URL : https://task-manager-lxeq.vercel.app/
+
 # MERN Stack Blog Application
 
 A full-stack blog application built with MongoDB, Express.js, React.js, and Node.js (MERN stack) featuring user authentication, CRUD operations, image uploads, search functionality, and more.
